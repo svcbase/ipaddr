@@ -119,13 +119,37 @@ func LocalIP() (ip string) {
 			if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 				if ipnet.IP.To4() != nil {
 					ip = ipnet.IP.String()
-					break
+					if !strings.HasPrefix(ip, "169.254") {
+						break
+					}
 				}
 			}
 		}
 	}
 	return
 }
+
+/*
+	netInterfaces, err := net.Interfaces()
+	if err == nil {
+		for _, netInterface := range netInterfaces {
+			if netInterface.Flags&net.FlagUp != 0 && netInterface.Flags&net.FlagLoopback == 0 {
+				macAddr := netInterface.HardwareAddr.String()
+				if len(macAddr) > 0 {
+					addrs, e := netInterface.Addrs()
+					if e == nil {
+						for _, addr := range addrs {
+							ipNet, isValidIpNet := addr.(*net.IPNet)
+							if isValidIpNet && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
+								if !strings.HasPrefix(ipNet.String(), "169.254") {
+									macAddrs = append(macAddrs, macAddr)
+								}
+							}
+						}
+					}
+				}
+			}
+		}*/
 
 func GetPulicIP() string {
 	conn, _ := net.Dial("udp", "google.com:80") //"8.8.8.8:80")
